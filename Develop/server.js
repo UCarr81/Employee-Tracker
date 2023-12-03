@@ -22,7 +22,7 @@ connection.connect((err) => {
     if (err) {
         console.error('Server not connecting');
     } else {
-        console.log('Connected to database employee_db');
+        console.log('Connected to database employees_db');
     }
 });
 
