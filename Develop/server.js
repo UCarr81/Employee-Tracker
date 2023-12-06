@@ -1,5 +1,7 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
+const inquirer = require("inquirer");
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3001
 
@@ -8,21 +10,77 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-const db = mysql.createConnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: process.env.DB_PASSWORD,
     database: 'tracker_db',
-},
-console.log(`Connected to tracker_db database.`)
-);
+});
 
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-    res.status(404).end();
-  });
+connection.connect(function (err) {
+  if (err) throw err;
+  console.log("Connected to tracker_db database.")
+  console.log(`
   
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-  
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+─██████──────────██████─██████████████─██████─────────██████████████─██████████████─██████████████████████─██████████████─
+─██░░██──────────██░░██─██░░░░░░░░░░██─██░░██─────────██░░░░░░░░░░██─██░░░░░░░░░░██─██░░░░░░░░░░░░░░░░░░██─██░░░░░░░░░░██─
+─██░░██──────────██░░██─██░░██████████─██░░██─────────██░░██████████─██░░██████░░██─██░░██████░░██████░░██─██░░██████████─
+─██░░██──────────██░░██─██░░██─────────██░░██─────────██░░██─────────██░░██──██░░██─██░░██████░░██████░░██─██░░██─────────
+─██░░██──██████──██░░██─██░░██████████─██░░██─────────██░░██─────────██░░██──██░░██─██░░██──██░░██──██░░██─██░░██████████─
+─██░░██──██░░██──██░░██─██░░░░░░░░░░██─██░░██─────────██░░██─────────██░░██──██░░██─██░░██──██░░██──██░░██─██░░░░░░░░░░██─
+─██░░██──██░░██──██░░██─██░░██████████─██░░██─────────██░░██─────────██░░██──██░░██─██░░██──██████──██░░██─██░░██████████─
+─██░░██████░░██████░░██─██░░██─────────██░░██─────────██░░██─────────██░░██──██░░██─██░░██──────────██░░██─██░░██─────────
+─██░░██████░░██████░░██─██░░██████████─██░░██████████─██░░██████████─██░░██████░░██─██░░██──────────██░░██─██░░██████████─
+─██░░░░░░░░░░░░░░░░░░██─██░░░░░░░░░░██─██░░░░░░░░░░██─██░░░░░░░░░░██─██░░░░░░░░░░██─██░░██──────────██░░██─██░░░░░░░░░░██─
+─██████████████████████─██████████████─██████████████─██████████████─██████████████─██████──────────██████─██████████████─
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+`);
+
+  welcomePrompt();
+});
+
+function welcomePrompt() {
+/*I am presented with the following options: 
+view all departments,
+view all roles,
+view all employees,
+add a department, 
+add a role, 
+add an employee,
+update an employee role*/
+  inquirer
+    .prompt({
+      type: "list",
+      name: 'tasks',
+      //This is probably pushing to hard we'll see if this stays or not
+      message: `
+█── █ █──█ █▀▀█ ▀▀█▀▀ 　 █───█ █▀▀█ █──█ █── █▀▀▄ 　 █──█ █▀▀█ █──█ 　 █── ─▀─ █─█ █▀▀ 　 ▀▀█▀▀ █▀▀█ 　 █▀▀▄ █▀▀█ ▀█ 
+█ █ █ █▀▀█ █▄▄█ ──█── 　 █▄█▄█ █──█ █──█ █── █──█ 　 █▄▄█ █──█ █──█ 　 █── ▀█▀ █▀▄ █▀▀ 　 ──█── █──█ 　 █──█ █──█ █▀ 
+█▄▀▄█ ▀──▀ ▀──▀ ──▀── 　 ─▀─▀─ ▀▀▀▀ ─▀▀▀ ▀▀▀ ▀▀▀─ 　 ▄▄▄█ ▀▀▀▀ ─▀▀▀ 　 ▀▀▀ ▀▀▀ ▀─▀ ▀▀▀ 　 ──▀── ▀▀▀▀ 　 ▀▀▀─ ▀▀▀▀ ▄
+      `,
+      choices: [
+        "View All Employees",
+
+        "Add Employee",
+
+        "View All Roles",
+
+        "Add A Role",
+
+        "View All Departments",
+
+        "Add Departments",
+
+        "End",
+      ]
+    })
+    .then((answers) => {
+      console.log(`${answers.tasks}`)
+      handeTask(answers.tasks);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+
