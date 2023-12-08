@@ -86,6 +86,10 @@ update an employee role*/
       if (tasks === 'View All Roles'){
         viewAllRoles();
       }
+    
+      if (tasks === 'Add Departments') {
+        addDepartment();
+      }
 
       if (tasks === "End") {
         connection.end();
@@ -155,8 +159,46 @@ const viewAllDepartments = () => {
       console.error("Error fetching departments:", error);
     } else {
       console.table(results);
-      
+
       welcomePrompt();
     }
   });
 };
+
+//=============================Adding================================
+
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'departmentName',
+        message: 'Enter the name of the department:',
+        validate: (input) => {
+          if (input.trim() === '') {
+            return 'Please enter a valid department name.';
+          }
+          return true;
+        },
+      },
+    ])
+    .then((answers) => {
+      const { departmentName } = answers;
+
+      // Insert the new department into the database
+      let sql = `
+        INSERT INTO Departments1 (name)
+        VALUES (?)
+      `;
+
+      connection.query(sql, [departmentName], (error, results) => {
+        if (error) {
+          console.error('Error adding department:', error);
+        } else {
+          console.log('Department added successfully!');
+          welcomePrompt(); // Return to the main prompt
+        }
+      });
+    });
+};
+
