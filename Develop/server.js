@@ -15,14 +15,13 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: process.env.DB_PASSWORD,
-    database: 'tracker_db',
+    database: 'etracker_db',
 });
 
 connection.connect(function (err) {
   if (err) throw err;
-  console.log("Connected to tracker_db database.")
+  console.log("Connected to etracker database.")
   console.log(`
-  
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ─██████──────────██████─██████████████─██████─────────██████████████─██████████████─██████████████████████─██████████████─
 ─██░░██──────────██░░██─██░░░░░░░░░░██─██░░██─────────██░░░░░░░░░░██─██░░░░░░░░░░██─██░░░░░░░░░░░░░░░░░░██─██░░░░░░░░░░██─
@@ -57,17 +56,18 @@ update an employee role*/
       //This is probably pushing to hard we'll see if this stays or not
       message: 'What would you like to do?',
       choices: [
-        "View All Employees",
-
-        "Add Employee",
-
-        "View All Roles",
-
-        "Add A Role",
 
         "View All Departments",
 
+        "View All Employees",
+
+        "View All Roles",
+        
         "Add Departments",
+
+        "Add Employee",
+
+        "Add A Role",
 
         "End",
       ]
@@ -75,8 +75,16 @@ update an employee role*/
     .then((answers) => {
       const { tasks } = answers;
 
+      if (tasks === 'View All Departments') {
+        viewAllDepartments();
+      }
+
       if (tasks === 'View All Employees') {
         viewAllEmployees();
+      }
+
+      if (tasks === 'View All Roles'){
+        viewAllRoles();
       }
 
       if (tasks === "End") {
@@ -84,31 +92,70 @@ update an employee role*/
       }
     });
 }
-
+//=============================Views================================
 const viewAllEmployees = () => {
   let sql = `
   SELECT
-    employees.id AS Employee_ID,
-    employees.first_name AS First_Name,
-    employees.last_name AS Last_Name,
-    roles.title AS Role,
-    roles.salary AS Salary,
-    department.name AS Department,
-    CONCAT(manager.first_name, ' ', manager.last_name) AS Manager
-  FROM employees
-  LEFT JOIN roles ON employees.roles_id = roles.id
-  LEFT JOIN department ON roles.department_id = department.id
-  LEFT JOIN employees manager ON employees.manager_id = manager.id
+    Employees1.id AS Employee_ID,
+    Employees1.first_name AS First_Name,
+    Employees1.last_name AS Last_Name,
+    Roles1.title AS Role,
+    Roles1.salary AS Salary,
+    Departments1.name AS Department,
+    CONCAT(Manager.first_name, ' ', Manager.last_name) AS Manager
+  FROM Employees1
+  LEFT JOIN Roles1 ON Employees1.roles_id = Roles1.id
+  LEFT JOIN Departments1 ON Roles1.department_id = Departments1.id
+  LEFT JOIN Employees1 Manager ON Employees1.manager_id = Manager.id
   `;
 
   connection.query(sql, (error, results) => {
     if (error) {
       console.error("Error fetching employees:", error);
     } else {
-      // Display the results using console.table
       console.table(results);
 
-      // After displaying, you might want to go back to the main menu
+      welcomePrompt();
+    }
+  });
+};
+
+const viewAllRoles = () => {
+  let sql = `
+  SELECT
+    Roles1.id AS Role_ID,
+    Roles1.title AS Role_Title,
+    Roles1.salary AS Salary,
+    Departments1.name AS Department
+  FROM Roles1
+  LEFT JOIN Departments1 ON Roles1.department_id = Departments1.id
+  `;
+
+  connection.query(sql, (error, results) => {
+    if (error) {
+      console.error("Error fetching roles:", error);
+    } else {
+      console.table(results);
+
+      welcomePrompt();
+    }
+  });
+};
+
+const viewAllDepartments = () => {
+  let sql = `
+    SELECT
+      id AS Department_ID,
+      name AS Department_Name
+    FROM Departments1
+  `;
+
+  connection.query(sql, (error, results) => {
+    if (error) {
+      console.error("Error fetching departments:", error);
+    } else {
+      console.table(results);
+      
       welcomePrompt();
     }
   });
