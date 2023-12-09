@@ -23,6 +23,7 @@ CREATE TABLE Employees1 (
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     roles_id INT,
+    salary DECIMAL(10, 2),
     manager_id INT,
     FOREIGN KEY (roles_id) REFERENCES Roles1(id),
     FOREIGN KEY (manager_id) REFERENCES Employees1(id) ON DELETE SET NULL

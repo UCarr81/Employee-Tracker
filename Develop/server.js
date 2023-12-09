@@ -91,6 +91,10 @@ update an employee role*/
         addDepartment();
       }
 
+      if (tasks === 'Add Employee') {
+        addEmployee();
+      }
+
       if (tasks === "End") {
         connection.end();
       }
@@ -185,7 +189,6 @@ const addDepartment = () => {
     .then((answers) => {
       const { departmentName } = answers;
 
-      // Insert the new department into the database
       let sql = `
         INSERT INTO Departments1 (name)
         VALUES (?)
@@ -202,3 +205,125 @@ const addDepartment = () => {
     });
 };
 
+const addEmployee = () => {
+  let departmentChoices = [];
+  let roleChoices = [];
+
+//---------------Department Choices--------
+  connection.query('SELECT name FROM Departments1', (error, departmentResults) => {
+    if (error) {
+      console.error('Error fetching departments for choices:', error);
+      return;
+    }
+
+    departmentChoices = departmentResults.map((department) => department.name);
+
+  //--------------Role Choices-------------
+    connection.query('SELECT title FROM Roles1', (error, roleResults) => {
+      if (error) {
+        console.error('Error fetching roles for choices:', error);
+        return;
+      }
+
+      roleChoices = roleResults.map((role) => role.title);
+
+  //--------------Inquirer-----------------
+    inquirer
+      .prompt([
+      {
+        type: 'input',
+        name: 'firstName',
+        message: 'Enter the first name of the employee:',
+        validate: (input) => {
+          if (input.trim() === '') {
+            return 'Please enter a valid first name.';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'input',
+        name: 'lastName',
+        message: 'Enter the last name of the employee:',
+        validate: (input) => {
+          if (input.trim() === '') {
+            return 'Please enter a valid last name.';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'list',
+        name: 'department',
+        message: 'Select the department of the employee:',
+        choices: [...departmentChoices, 'Add New Department'],
+      },
+      {
+        type: 'input',
+        name: 'newDepartment',
+        message: 'Enter the name of the new department:',
+        when: (answers) => answers.department === 'Add New Department',
+      },
+      {
+        type: 'list',
+        name: 'role',
+        message: 'Select the role of the employee:',
+        choices: [...roleChoices, 'Add New Role'],
+      },
+      {
+        input: 'input',
+        name: 'newRole',
+        message: 'Enter the title of the new role:',
+        when: (answers) => answers.role === 'Add New Role',
+      },
+      {
+        type: 'input',
+        name: 'role',
+        message: 'Enter the role of the employee:',
+        validate: (input) => {
+          if (input.trim() === '') {
+            return 'Please enter a valid role.';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'input',
+        name: 'salary',
+        message: 'Enter the salary of the employee:',
+        validate: (input) => {
+          if (isNaN(input) || input.trim() === '') {
+            return 'Please enter a valid salary (numeric value).';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'input',
+        name: 'manager',
+        message: 'Enter the manager of the employee (leave blank if none):',
+      },
+    ])
+    .then((answers) => {
+      const { firstName, lastName, role, newRole, salary, department, manager } = answers;
+
+      const selectedRole = newRole || role;
+
+      let sql = `
+      INSERT INTO Employees1 (first_name, last_name, roles_id, employee_salary, manager_id)
+      VALUES (?, ?, (SELECT id FROM Roles1 WHERE title = ?), ?, 
+      (SELECT id FROM Employees1 WHERE CONCAT(first_name, ' ', last_name) = ? OR ? = '' LIMIT 1))
+    `;
+    
+    connection.query(sql, [firstName, lastName, selectedRole, salary, manager, manager], (error, results) => {
+      if (error) {
+        console.error('Error adding employee:', error);
+      } else {
+        console.log('Employee added successfully!');
+        welcomePrompt();
+      }
+    });
+    });
+  });
+});
+};
