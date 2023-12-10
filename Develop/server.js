@@ -69,6 +69,12 @@ update an employee role*/
 
         "Add A Role",
 
+        "Delete Department",
+
+        "Delete Employee",
+        
+        "Delete Role",
+
         "End",
       ]
     })
@@ -97,6 +103,18 @@ update an employee role*/
 
       if (tasks === 'Add A Role') {
         addRole();
+      }
+
+      if (tasks === 'Delete Department') {
+        deleteDepartment();
+      }
+
+      if (tasks === "Delete Employee") {
+        deleteEmployee();
+      }
+
+      if (tasks === "Delete Role") {
+        deleteRole();
       }
 
       if (tasks === "End") {
@@ -175,6 +193,7 @@ const viewAllDepartments = () => {
 
 //=============================Adding================================
 
+
 const addDepartment = () => {
   inquirer
     .prompt([
@@ -202,8 +221,18 @@ const addDepartment = () => {
         if (error) {
           console.error('Error adding department:', error);
         } else {
-          console.log('Department added successfully!');
-          welcomePrompt(); // Return to the main prompt
+          console.log(`
+          
+╭━━━╮╱╱╱╱╱╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╭╮╱   ╭━━━╮╱╭╮╱╭╮╱╱╱╱╭╮
+╰╮╭╮┃╱╱╱╱╱╱╱╱╱╭╯╰╮╱╱╱╱╱╱╱╭╯╰╮   ┃╭━╮┃╱┃┃╱┃┃╱╱╱╱┃┃
+╱┃┃┃┣━━┳━━┳━━┳┻╮╭╋╮╭┳━━┳━╋╮╭╯   ┃┃╱┃┣━╯┣━╯┣━━┳━╯┃
+╱┃┃┃┃┃━┫╭╮┃╭╮┃╭┫┃┃╰╯┃┃━┫╭╮┫┃╱   ┃╰━╯┃╭╮┃╭╮┃┃━┫╭╮┃
+╭╯╰╯┃┃━┫╰╯┃╭╮┃┃┃╰┫┃┃┃┃━┫┃┃┃╰╮   ┃╭━╮┃╰╯┃╰╯┃┃━┫╰╯┃
+╰━━━┻━━┫╭━┻╯╰┻╯╰━┻┻┻┻━━┻╯╰┻━╯   ╰╯╱╰┻━━┻━━┻━━┻━━╯
+╱╱╱╱╱╱╱┃┃
+╱╱╱╱╱╱╱╰╯
+          `);
+          welcomePrompt();
         }
       });
     });
@@ -260,7 +289,15 @@ const addRole = () => {
           if (error) {
             console.error('Error adding role:', error);
           } else {
-            console.log('Role added successfully!');
+            console.log(`
+               
+╭━━━╮╱╱╭╮╱╱╱╱   ╭━━━╮╱╭╮╱╭╮╱╱╱╱╭╮
+┃╭━╮┃╱╱┃┃╱╱╱╱   ┃╭━╮┃╱┃┃╱┃┃╱╱╱╱┃┃
+┃╰━╯┣━━┫┃╭━━╮   ┃┃╱┃┣━╯┣━╯┣━━┳━╯┃
+┃╭╮╭┫╭╮┃┃┃┃━┫   ┃╰━╯┃╭╮┃╭╮┃┃━┫╭╮┃
+┃┃┃╰┫╰╯┃╰┫┃━┫   ┃╭━╮┃╰╯┃╰╯┃┃━┫╰╯┃
+╰╯╰━┻━━┻━┻━━╯   ╰╯╱╰┻━━┻━━┻━━┻━━╯
+            `);
             welcomePrompt(); 
           }
         });
@@ -364,7 +401,16 @@ const addEmployee = () => {
       if (error) {
         console.error('Error adding employee:', error);
       } else {
-        console.log('Employee added successfully!');
+        console.log(`  
+        ╭━━━╮╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╱╱╱╱╱  ╭━━━╮╱╭╮╱╭╮╱╱╱╱╭╮
+        ┃╭━━╯╱╱╱╱╱┃┃╱╱╱╱╱╱╱╱╱╱╱╱╱╱  ┃╭━╮┃╱┃┃╱┃┃╱╱╱╱┃┃
+        ┃╰━━┳╮╭┳━━┫┃╭━━┳╮╱╭┳━━┳━━╮  ┃┃╱┃┣━╯┣━╯┣━━┳━╯┃
+        ┃╭━━┫╰╯┃╭╮┃┃┃╭╮┃┃╱┃┃┃━┫┃━┫  ┃╰━╯┃╭╮┃╭╮┃┃━┫╭╮┃
+        ┃╰━━┫┃┃┃╰╯┃╰┫╰╯┃╰━╯┃┃━┫┃━┫  ┃╭━╮┃╰╯┃╰╯┃┃━┫╰╯┃
+        ╰━━━┻┻┻┫╭━┻━┻━━┻━╮╭┻━━┻━━╯  ╰╯╱╰┻━━┻━━┻━━┻━━╯
+        ╱╱╱╱╱╱╱┃┃╱╱╱╱╱╱╭━╯┃
+        ╱╱╱╱╱╱╱╰╯╱╱╱╱╱╱╰━━╯
+        `);
         welcomePrompt();
       }
     });
@@ -403,5 +449,60 @@ const getEmployeeId = (employeeName) => {
         }
       }
     );
+  });
+};
+
+
+//=============================Delete================================
+const deleteDepartment = () => {
+  connection.query('SELECT id, name FROM Departments1', (error, results) => {
+    if (error) {
+      console.error('Error fetching departments for deletion:', error);
+      return;
+    }
+
+    const departmentChoices = results.map((department) => ({
+      name: `${department.name}`,
+      value: department.id,
+    }));
+
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'departmentId',
+          message: 'Select the department you want to delete:',
+          choices: departmentChoices,
+        },
+        {
+          type: 'confirm',
+          name: 'confirmDelete',
+          message: 'Are you sure you want to delete this department?',
+          default: false,
+        },
+      ])
+      .then((answers) => {
+        const { departmentId, confirmDelete } = answers;
+
+        if (!confirmDelete) {
+          console.log('Deletion canceled.');
+          welcomePrompt();
+          return;
+        }
+
+        let sql = `
+          DELETE FROM Departments1
+          WHERE id = ?
+        `;
+
+        connection.query(sql, [departmentId], (error, deleteResult) => {
+          if (error) {
+            console.error('Error deleting department:', error);
+          } else {
+            console.log('Department deleted successfully!');
+            welcomePrompt();
+          }
+        });
+      });
   });
 };
