@@ -506,3 +506,56 @@ const deleteDepartment = () => {
       });
   });
 };
+
+const deleteEmployee = () => {
+  connection.query('SELECT id, CONCAT(first_name, " ", last_name) AS employeeName FROM Employees1', (error, results) => {
+    if (error) {
+      console.error('Error fetching employees for deletion:', error);
+      return;
+    }
+
+    const employeeChoices = results.map((employee) => ({
+      name: `${employee.employeeName}`,
+      value: employee.id,
+    }));
+
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'employeeId',
+          message: 'Select the employee you want to delete:',
+          choices: employeeChoices,
+        },
+        {
+          type: 'confirm',
+          name: 'confirmDelete',
+          message: 'Are you sure you want to delete this employee?',
+          default: false,
+        },
+      ])
+      .then((answers) => {
+        const { employeeId, confirmDelete } = answers;
+
+        if (!confirmDelete) {
+          console.log('Deletion canceled.');
+          welcomePrompt();
+          return;
+        }
+
+        let sql = `
+          DELETE FROM Employees1
+          WHERE id = ?
+        `;
+
+        connection.query(sql, [employeeId], (error, deleteResult) => {
+          if (error) {
+            console.error('Error deleting employee:', error);
+          } else {
+            console.log('Employee deleted successfully!');
+            welcomePrompt();
+          }
+        });
+      });
+  });
+};
