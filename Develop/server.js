@@ -499,7 +499,17 @@ const deleteDepartment = () => {
           if (error) {
             console.error('Error deleting department:', error);
           } else {
-            console.log('Department deleted successfully!');
+            console.log(`
+            
+╭━━━╮╱╱╱╱╱╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╭╮╱  ╭━━━╮╱╱╭╮╱╱╱╭╮╱╱╱╱╱╭╮
+╰╮╭╮┃╱╱╱╱╱╱╱╱╱╭╯╰╮╱╱╱╱╱╱╱╭╯╰╮  ╰╮╭╮┃╱╱┃┃╱╱╭╯╰╮╱╱╱╱┃┃
+╱┃┃┃┣━━┳━━┳━━┳┻╮╭╋╮╭┳━━┳━╋╮╭╯  ╱┃┃┃┣━━┫┃╭━┻╮╭╋━━┳━╯┃
+╱┃┃┃┃┃━┫╭╮┃╭╮┃╭┫┃┃╰╯┃┃━┫╭╮┫┃╱  ╱┃┃┃┃┃━┫┃┃┃━┫┃┃┃━┫╭╮┃
+╭╯╰╯┃┃━┫╰╯┃╭╮┃┃┃╰┫┃┃┃┃━┫┃┃┃╰╮  ╭╯╰╯┃┃━┫╰┫┃━┫╰┫┃━┫╰╯┃
+╰━━━┻━━┫╭━┻╯╰┻╯╰━┻┻┻┻━━┻╯╰┻━╯  ╰━━━┻━━┻━┻━━┻━┻━━┻━━╯
+╱╱╱╱╱╱╱┃┃
+╱╱╱╱╱╱╱╰╯
+            `);
             welcomePrompt();
           }
         });
@@ -552,7 +562,78 @@ const deleteEmployee = () => {
           if (error) {
             console.error('Error deleting employee:', error);
           } else {
-            console.log('Employee deleted successfully!');
+            console.log(`
+              
+╭━━━╮╱╱╱╱╱╭╮╱╱╱╱╱╱╱╱╱╱╱╱╱╱  ╭━━━╮╱╱╭╮╱╱╱╭╮╱╱╱╱╱╭╮
+┃╭━━╯╱╱╱╱╱┃┃╱╱╱╱╱╱╱╱╱╱╱╱╱╱  ╰╮╭╮┃╱╱┃┃╱╱╭╯╰╮╱╱╱╱┃┃
+┃╰━━┳╮╭┳━━┫┃╭━━┳╮╱╭┳━━┳━━╮  ╱┃┃┃┣━━┫┃╭━┻╮╭╋━━┳━╯┃
+┃╭━━┫╰╯┃╭╮┃┃┃╭╮┃┃╱┃┃┃━┫┃━┫  ╱┃┃┃┃┃━┫┃┃┃━┫┃┃┃━┫╭╮┃
+┃╰━━┫┃┃┃╰╯┃╰┫╰╯┃╰━╯┃┃━┫┃━┫  ╭╯╰╯┃┃━┫╰┫┃━┫╰┫┃━┫╰╯┃
+╰━━━┻┻┻┫╭━┻━┻━━┻━╮╭┻━━┻━━╯  ╰━━━┻━━┻━┻━━┻━┻━━┻━━╯
+╱╱╱╱╱╱╱┃┃╱╱╱╱╱╱╭━╯┃
+╱╱╱╱╱╱╱╰╯╱╱╱╱╱╱╰━━╯
+            `);
+            welcomePrompt();
+          }
+        });
+      });
+  });
+};
+
+const deleteRole = () => {
+  connection.query('SELECT id, title FROM Roles1', (error, results) => {
+    if (error) {
+      console.error('Error fetching roles for deletion:', error);
+      return;
+    }
+
+    const roleChoices = results.map((role) => ({
+      name: `${role.title}`,
+      value: role.id,
+    }));
+
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'roleId',
+          message: 'Select the role you want to delete:',
+          choices: roleChoices,
+        },
+        {
+          type: 'confirm',
+          name: 'confirmDelete',
+          message: 'Are you sure you want to delete this role?',
+          default: false,
+        },
+      ])
+      .then((answers) => {
+        const { roleId, confirmDelete } = answers;
+
+        if (!confirmDelete) {
+          console.log('Deletion canceled.');
+          welcomePrompt();
+          return;
+        }
+
+        let sql = `
+          DELETE FROM Roles1
+          WHERE id = ?
+        `;
+
+        connection.query(sql, [roleId], (error, deleteResult) => {
+          if (error) {
+            console.error('Error deleting role:', error);
+          } else {
+            console.log(`
+              
+╭━━━╮╱╱╭╮╱╱╱╱  ╭━━━╮╱╱╭╮╱╱╱╭╮╱╱╱╱╱╭╮
+┃╭━╮┃╱╱┃┃╱╱╱╱  ╰╮╭╮┃╱╱┃┃╱╱╭╯╰╮╱╱╱╱┃┃
+┃╰━╯┣━━┫┃╭━━╮  ╱┃┃┃┣━━┫┃╭━┻╮╭╋━━┳━╯┃
+┃╭╮╭┫╭╮┃┃┃┃━┫  ╱┃┃┃┃┃━┫┃┃┃━┫┃┃┃━┫╭╮┃
+┃┃┃╰┫╰╯┃╰┫┃━┫  ╭╯╰╯┃┃━┫╰┫┃━┫╰┫┃━┫╰╯┃
+╰╯╰━┻━━┻━┻━━╯  ╰━━━┻━━┻━┻━━┻━┻━━┻━━╯
+            `);
             welcomePrompt();
           }
         });
