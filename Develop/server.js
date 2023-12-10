@@ -95,6 +95,10 @@ update an employee role*/
         addEmployee();
       }
 
+      if (tasks === 'Add A Role') {
+        addRole();
+      }
+
       if (tasks === "End") {
         connection.end();
       }
@@ -205,6 +209,68 @@ const addDepartment = () => {
     });
 };
 
+
+const addRole = () => {
+  let departmentChoices = [];
+
+  connection.query('SELECT name FROM Departments1', (error, departmentResults) => {
+    if (error) {
+      console.error('Error fetching departments for choices:', error);
+      return;
+    }
+
+    departmentChoices = departmentResults.map((department) => department.name);
+
+    // Inquirer prompt for adding a new role
+    inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'roleTitle',
+          message: 'Enter the title of the new role:',
+          validate: (input) => {
+            if (input.trim() === '') {
+              return 'Please enter a valid role title.';
+            }
+            return true;
+          },
+        },
+        {
+          type: 'input',
+          name: 'roleSalary',
+          message: 'Enter the salary for the new role:',
+          validate: (input) => !isNaN(+input) || 'Please enter a valid salary (numeric value).',
+        },
+        {
+          type: 'list',
+          name: 'roleDepartment',
+          message: 'Select the department for the new role:',
+          choices: [...departmentChoices, 'Add New Department'],
+        },
+      ])
+      .then((answers) => {
+        const { roleTitle, roleSalary, roleDepartment } = answers;
+
+        let sql = `
+          INSERT INTO Roles1 (title, salary, department_id)
+          VALUES (?, ?, (SELECT id FROM Departments1 WHERE name = ?))
+        `;
+
+        connection.query(sql, [roleTitle, roleSalary, roleDepartment], (error, results) => {
+          if (error) {
+            console.error('Error adding role:', error);
+          } else {
+            console.log('Role added successfully!');
+            welcomePrompt(); 
+          }
+        });
+      });
+  });
+};
+
+
+
+
 const addEmployee = () => {
   let departmentChoices = [];
   let roleChoices = [];
@@ -271,51 +337,30 @@ const addEmployee = () => {
         choices: [...roleChoices, 'Add New Role'],
       },
       {
-        input: 'input',
+        type: 'input',
         name: 'newRole',
         message: 'Enter the title of the new role:',
         when: (answers) => answers.role === 'Add New Role',
       },
       {
-        type: 'input',
-        name: 'role',
-        message: 'Enter the role of the employee:',
-        validate: (input) => {
-          if (input.trim() === '') {
-            return 'Please enter a valid role.';
-          }
-          return true;
-        },
-      },
-      {
-        type: 'input',
-        name: 'salary',
-        message: 'Enter the salary of the employee:',
-        validate: (input) => {
-          if (isNaN(input) || input.trim() === '') {
-            return 'Please enter a valid salary (numeric value).';
-          }
-          return true;
-        },
-      },
-      {
-        type: 'input',
+        type: 'list',
         name: 'manager',
-        message: 'Enter the manager of the employee (leave blank if none):',
+        message: 'Enter the manager of the employee (N/A for none):',
+        choices: async () => await getEmployeeChoices(),
       },
     ])
-    .then((answers) => {
-      const { firstName, lastName, role, newRole, salary, department, manager } = answers;
+    .then(async (answers) => {
+      const { firstName, lastName, role, newRole, department, manager } = answers;
 
       const selectedRole = newRole || role;
+      const managerID = await getEmployeeId(manager);
 
       let sql = `
-      INSERT INTO Employees1 (first_name, last_name, roles_id, employee_salary, manager_id)
-      VALUES (?, ?, (SELECT id FROM Roles1 WHERE title = ?), ?, 
-      (SELECT id FROM Employees1 WHERE CONCAT(first_name, ' ', last_name) = ? OR ? = '' LIMIT 1))
+      INSERT INTO Employees1 (first_name, last_name, roles_id, manager_id)
+      VALUES (?, ?, (SELECT id FROM Roles1 WHERE title = ?), ?)
     `;
     
-    connection.query(sql, [firstName, lastName, selectedRole, salary, manager, manager], (error, results) => {
+    connection.query(sql, [firstName, lastName, selectedRole, managerID], (error, results) => {
       if (error) {
         console.error('Error adding employee:', error);
       } else {
@@ -326,4 +371,37 @@ const addEmployee = () => {
     });
   });
 });
+};
+
+const getEmployeeChoices = () => {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT CONCAT(first_name, " ", last_name) AS Employee FROM Employees1', (error, results) => {
+      if (error) {
+        console.error('Error fetching employees:', error);
+        reject(error);
+      } else {
+        const employeeChoices = ['None'].concat(results.map((employee) => employee.Employee));
+        resolve(employeeChoices);
+      }
+    });
+  });
+};
+
+const getEmployeeId = (employeeName) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      'SELECT id FROM Employees1 WHERE CONCAT(first_name, " ", last_name) = ?',
+      [employeeName],
+      (error, results) => {
+        if (error) {
+          console.error('Error fetching employee ID:', error);
+          reject(error);
+        } else {
+          // Assuming the query returns only one result or no result
+          const employeeId = results.length > 0 ? results[0].id : null;
+          resolve(employeeId);
+        }
+      }
+    );
+  });
 };
